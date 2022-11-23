@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"sync"
 )
 
@@ -141,7 +140,7 @@ func processFile(filePath string, sequenceCountMapStream chan<- sequenceCountMap
 
 	It uses sliding window technique to scan the buffered text. It maintains a double
 	ended queue for the sliding window, which will store a 'n' word sequence while traversing
-    the text.
+	the text.
 */
 func processText(r io.Reader, sequenceCountMapStream chan<- sequenceCountMap) {
 	scanner := bufio.NewScanner(bufio.NewReader(r))
@@ -182,11 +181,9 @@ func processText(r io.Reader, sequenceCountMapStream chan<- sequenceCountMap) {
 		windowDeque.PushBack(nextWord)
 	}
 
-	if windowDeque.Len() == n {
-		// add any remaining items from the window
-		key := sequenceCountMapKey(&windowDeque)
-		fSequenceCountMap.incCount(key)
-	}
+	// add any remaining items from the window
+	key := sequenceCountMapKey(&windowDeque)
+	fSequenceCountMap.incCount(key)
 
 	if err := scanner.Err(); err != nil {
 		log.Fatalf("Failure while scanning text.\n Error: %s", err.Error())
@@ -210,10 +207,6 @@ func getTopKSequences(sequenceCountMap sequenceCountMap, k int) []*sequenceCount
 	topKSequences := newSequenceCountMinHeap()
 
 	for sequence, count := range sequenceCountMap {
-		if strings.TrimSpace(sequence) == "" {
-			continue
-		}
-
 		heap.Push(topKSequences, &sequenceCount{sequence, count})
 
 		if topKSequences.Len() > k {
@@ -237,7 +230,7 @@ func getTopKSequences(sequenceCountMap sequenceCountMap, k int) []*sequenceCount
 
 /*
 	mergeSequenceCountMaps receives the sequence counts maps of different files from a channel and
-    merges it into the global gSequenceCountMap.
+	merges it into the global gSequenceCountMap.
 
 	Once the merging is completed it sends a signal on the 'done' channel.
 */

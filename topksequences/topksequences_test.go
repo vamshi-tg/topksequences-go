@@ -75,7 +75,7 @@ func Test_processText(t *testing.T) {
 		},
 		{
 			name: "should return sequence count",
-			text: "Hello world example. This is a HELLO WORLD example!!",
+			text: "Hello world example. This is a HELLO WORLD example time!!",
 			want: sequenceCountMap{
 				"hello world example": 2,
 				"world example this":  1,
@@ -83,6 +83,7 @@ func Test_processText(t *testing.T) {
 				"this is a":           1,
 				"is a hello":          1,
 				"a hello world":       1,
+				"world example time":  1,
 			},
 		},
 		{
